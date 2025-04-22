@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inteligencia Financiera</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --secondary: #1D4ED8;
+            --accent: #F59E0B;
+            --light: #F8F9FA;
+            --dark: #1F2937;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: var(--dark);
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin: 20px 0;
+            color: var(--secondary);
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 20px;
+            background-color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        
+        .question {
+            font-size: 1.8em;
+            margin: 20px 0;
+            color: var(--dark);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        
+        .options {
+            margin: 20px 0;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .option {
+            display: block;
+            margin: 0;
+            padding: 15px;
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            width: 100%;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+        
+        .option::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .option:hover::before {
+            left: 100%;
+        }
+        
+        #next, #startQuiz {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(29, 78, 216, 0.3);
+        }
+        
+        #next:hover, #startQuiz:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(29, 78, 216, 0.4);
+        }
+        
+        .finance-icon {
+            width: 140px;
+            height: auto;
+            margin: 10px 0;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+        }
+        
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 0;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideIn 0.4s;
+        }
+        
+        @keyframes slideIn {
+            from {transform: translateY(-50px); opacity: 0;}
+            to {transform: translateY(0); opacity: 1;}
+        }
+        
+        .modal-header {
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .correct {
+            background: linear-gradient(90deg, var(--success), #059669);
+            color: white;
+        }
+        
+        .incorrect {
+            background: linear-gradient(90deg, #EF4444, #DC2626);
+            color: white;
+        }
+        
+        .modal-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 0;
+            padding: 20px 0;
+        }
+        
+        .modal-body {
+            padding: 20px 30px;
+            text-align: left;
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+        
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+        
+        .close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+        
+        .modal-button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: auto;
+            box-shadow: 0 4px 15px rgba(29, 78, 216, 0.3);
+        }
+        
+        .modal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(29, 78, 216, 0.4);
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            animation: confettiFall 3s ease-in-out forwards;
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+        }
+        
+        /* Estilos para el formulario de inicio */
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        
+        /* Pantallas de inicio y final */
+        #startScreen, #endScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #quizScreen {
+            display: none;
+        }
+        
+        #endScreen {
+            display: none;
+        }
+        
+        #userGreeting {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de inicio -->
+        <div id="startScreen">
+            <h1>INTELIGENCIA FINANCIERA</h1>
+            <svg class="finance-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2563EB">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.88-11.71L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.54 2.54c.39.39 1.02.39 1.41 0l5.54-5.54a.996.996 0 0 0 0-1.41c-.39-.38-1.03-.38-1.42 0z"/>
+                <path d="M16.59 7.58L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.54 2.54c.39.39 1.02.39 1.41 0l5.54-5.54a.996.996 0 0 0 0-1.41c-.39-.38-1.03-.38-1.42 0z"/>
+            </svg>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="userName">Nombre:</label>
+                    <input type="text" id="userName" required placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label for="birthDate">Fecha de nacimiento:</label>
+                    <input type="date" id="birthDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="educationLevel">Nivel de estudio:</label>
+                    <select id="educationLevel" required>
+                        <option value="">Selecciona...</option>
+                        <option value="school">Secundaria</option>
+                        <option value="college">Universidad</option>
+                        <option value="postgrad">Posgrado</option>
+                        <option value="other">Otro</option>
+                    </select>
+                </div>
+                <button type="button" id="startQuiz">Comenzar Test</button>
+            </form>
+        </div>
+        
+        <!-- Pantalla del cuestionario -->
+        <div id="quizScreen">
+            <h1>INTELIGENCIA FINANCIERA</h1>
+            <div id="userGreeting"></div>
+            <svg class="finance-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2563EB">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.88-11.71L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.54 2.54c.39.39 1.02.39 1.41 0l5.54-5.54a.996.996 0 0 0 0-1.41c-.39-.38-1.03-.38-1.42 0z"/>
+                <path d="M16.59 7.58L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.54 2.54c.39.39 1.02.39 1.41 0l5.54-5.54a.996.996 0 0 0 0-1.41c-.39-.38-1.03-.38-1.42 0z"/>
+            </svg>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+            <button id="next" onclick="nextQuestion()">Siguiente Pregunta</button>
+        </div>
+        
+        <!-- Pantalla final -->
+        <div id="endScreen">
+            <h1>INTELIGENCIA FINANCIERA</h1>
+            <svg class="finance-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#10B981">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <div id="finalMessage"></div>
+            <button onclick="location.reload()" class="modal-button">Volver a empezar</button>
+        </div>
+    </div>
+
+    <!-- Modal para mostrar retroalimentación -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 class="modal-title" id="modalTitle"></h2>
+            </div>
+            <div class="modal-body" id="modalFeedback"></div>
+            <button class="modal-button" onclick="nextQuestion()">Siguiente Pregunta</button>
+        </div>
+    </div>
+
+    <script>
+        // Datos del usuario
+        let userName = "";
+        
+        // Preguntas ampliadas (50 en total)
+        const questions = [
+            {
+                question: "¿Qué es un presupuesto?",
+                options: ["Un plan de gastos", "Un tipo de inversión", "Una deuda", "Un ahorro"],
+                answer: 0,
+                explanation: "Un presupuesto es un plan que detalla cómo se gastará el dinero, ayudando a controlar tus finanzas personales o empresariales."
+            },
+            {
+                question: "¿Qué es el interés compuesto?",
+                options: ["Interés sobre el capital inicial", "Interés sobre el interés", "Interés fijo", "Interés variable"],
+                answer: 1,
+                explanation: "El interés compuesto es el interés calculado sobre el interés acumulado, lo que permite que tus ahorros o inversiones crezcan exponencialmente con el tiempo."
+            },
+            {
+                question: "¿Qué significa TAE en finanzas?",
+                options: ["Tasa Anual Equivalente", "Tasa Anual Estandarizada", "Tasa Aplicada Efectiva", "Tasa Anual Estimada"],
+                answer: 0,
+                explanation: "TAE significa Tasa Anual Equivalente y representa el coste o rendimiento efectivo de un producto financiero, incluyendo intereses y comisiones."
+            },
+            {
+                question: "¿Qué es un fondo de emergencia?",
+                options: ["Dinero reservado para imprevistos", "Un tipo de inversión", "Un préstamo bancario", "Un seguro médico"],
+                answer: 0,
+                explanation: "Un fondo de emergencia es dinero reservado para cubrir gastos imprevistos como pérdida de empleo, reparaciones urgentes o emergencias médicas."
+            },
+            {
+                question: "¿Qué es la inflación?",
+                options: ["Aumento generalizado de precios", "Disminución del valor de la moneda", "Ambas son correctas", "Ninguna es correcta"],
+                answer: 2,
+                explanation: "La inflación es el aumento generalizado de precios que provoca la disminución del poder adquisitivo de la moneda con el tiempo."
+            },
+            {
+                question: "¿Qué es un activo en finanzas personales?",
+                options: ["Algo que posees y tiene valor", "Una deuda que debes pagar", "Un gasto mensual", "Un ingreso fijo"],
+                answer: 0,
+                explanation: "Un activo es cualquier cosa que posees y que tiene valor económico, como una casa, inversiones, dinero en efectivo o incluso tus habilidades."
+            },
+            {
+                question: "¿Qué es un pasivo en finanzas personales?",
+                options: ["Una deuda u obligación financiera", "Un ingreso adicional", "Un tipo de inversión", "Un seguro"],
+                answer: 0,
+                explanation: "Un pasivo es una deuda u obligación financiera que debes pagar, como una hipoteca, préstamo estudiantil o tarjetas de crédito."
+            },
+            {
+                question: "¿Qué es la diversificación en inversiones?",
+                options: ["Repartir el dinero en diferentes activos", "Invertir todo en una sola opción", "Ahorrar en efectivo", "Comprar solo acciones"],
+                answer: 0,
+                explanation: "La diversificación consiste en repartir tus inversiones en diferentes activos (acciones, bonos, bienes raíces) para reducir el riesgo general de tu portafolio."
+            },
+            {
+                question: "¿Qué es un dividendo?",
+                options: ["Parte de las ganancias que una empresa reparte a sus accionistas", "Un tipo de interés bancario", "Una comisión por inversión", "Un impuesto sobre acciones"],
+                answer: 0,
+                explanation: "Un dividendo es la parte de las ganancias que una empresa decide repartir entre sus accionistas, normalmente de forma trimestral o anual."
+            },
+            {
+                question: "¿Qué es el IBAN?",
+                options: ["Número internacional de cuenta bancaria", "Identificación bancaria automática numérica", "Indicador bancario de ahorro nacional", "Interfaz bancaria de acceso numérico"],
+                answer: 0,
+                explanation: "El IBAN (International Bank Account Number) es un código estándar internacional que identifica una cuenta bancaria de forma única."
+            },
+            {
+                question: "¿Qué es un ETF?",
+                options: ["Fondo cotizado en bolsa", "Estrategia de trading financiero", "Evaluación técnica financiera", "Estándar de transferencia electrónica"],
+                answer: 0,
+                explanation: "Un ETF (Exchange-Traded Fund) es un fondo de inversión que se negocia en bolsa como una acción, combinando características de fondos mutuos y acciones."
+            },
+            {
+                question: "¿Qué es el apalancamiento financiero?",
+                options: ["Usar deuda para aumentar la capacidad de inversión", "Reducir los gastos al mínimo", "Ahorrar más dinero", "Diversificar las inversiones"],
+                answer: 0,
+                explanation: "El apalancamiento financiero consiste en usar fondos prestados para aumentar la capacidad de inversión, amplificando tanto ganancias como pérdidas potenciales."
+            },
+            {
+                question: "¿Qué es un plan de pensiones?",
+                options: ["Producto de ahorro para la jubilación", "Un seguro médico", "Un tipo de crédito", "Una inversión en bolsa"],
+                answer: 0,
+                explanation: "Un plan de pensiones es un producto financiero diseñado para ahorrar dinero que se recibirá al jubilarse, con ventajas fiscales en muchos países."
+            },
+            {
+                question: "¿Qué es el valor liquidativo de un fondo de inversión?",
+                options: ["Valor por participación del fondo", "Comisión de gestión", "Rentabilidad anual", "Capital inicial invertido"],
+                answer: 0,
+                explanation: "El valor liquidativo es el valor de cada participación del fondo de inversión en un momento determinado, calculado dividiendo el patrimonio total entre las participaciones."
+            },
+            {
+                question: "¿Qué es el scoring crediticio?",
+                options: ["Puntuación que mide la solvencia de una persona", "Tipo de interés de un préstamo", "Comisión bancaria", "Método de ahorro"],
+                answer: 0,
+                explanation: "El scoring crediticio es una puntuación que evalúa la capacidad y probabilidad de que una persona pague sus deudas, basada en su historial crediticio."
+            },
+            {
+                question: "¿Qué es la prima de riesgo?",
+                options: ["Diferencial de rentabilidad entre bonos de distintos países", "Comisión por invertir en bolsa", "Seguro para inversiones", "Beneficio adicional de una acción"],
+                answer: 0,
+                explanation: "La prima de riesgo mide la diferencia de rentabilidad entre los bonos de un país y los considerados más seguros (como los alemanes), indicando la percepción de riesgo."
+            },
+            {
+                question: "¿Qué es el TIN?",
+                options: ["Tipo de Interés Nominal", "Tasa Interna de Negociación", "Tributo de Inversión Nacional", "Término de Interés Neto"],
+                answer: 0,
+                explanation: "El TIN (Tipo de Interés Nominal) es el porcentaje fijo que se pacta como concepto de pago por el dinero prestado, sin incluir otros gastos."
+            },
+            {
+                question: "¿Qué es un bono?",
+                options: ["Título de deuda emitido por una empresa o gobierno", "Un tipo de acción", "Un seguro de inversión", "Un fondo de ahorro"],
+                answer: 0,
+                explanation: "Un bono es un título de deuda que emiten empresas o gobiernos para financiarse, pagando intereses periódicos y devolviendo el principal al vencimiento."
+            },
+            {
+                question: "¿Qué es una acción en bolsa?",
+                options: ["Parte del capital social de una empresa", "Un tipo de préstamo", "Un bono corporativo", "Un derivado financiero"],
+                answer: 0,
+                explanation: "Una acción representa una parte del capital social de una empresa y da derechos sobre sus beneficios (dividendos) y en la toma de ciertas decisiones."
+            },
+            {
+                question: "¿Qué es el ROE?",
+                options: ["Rentabilidad sobre el patrimonio neto", "Ratio de operaciones ejecutadas", "Retorno sobre empleados", "Registro de operaciones económicas"],
+                answer: 0,
+                explanation: "El ROE (Return on Equity) mide la rentabilidad de una empresa en relación con sus fondos propios, indicando cuánto beneficio genera con el dinero invertido por los accionistas."
+            },
+            {
+                question: "¿Qué es un mercado bajista?",
+                options: ["Cuando los precios de los activos bajan sostenidamente", "Cuando hay alta volatilidad", "Cuando los precios suben rápidamente", "Cuando hay poco volumen de operaciones"],
+                answer: 0,
+                explanation: "Un mercado bajista (bear market) es cuando los precios de los activos bajan de forma sostenida (generalmente más del 20% desde máximos recientes), acompañado de pesimismo generalizado."
+            },
+            {
+                question: "¿Qué es un mercado alcista?",
+                options: ["Cuando los precios de los activos suben sostenidamente", "Cuando hay mucha volatilidad", "Cuando los precios bajan rápidamente", "Cuando hay mucho volumen de operaciones"],
+                answer: 0,
+                explanation: "Un mercado alcista (bull market) es cuando los precios de los activos suben de forma sostenida, generando optimismo entre los inversores y atrayendo más capital."
+            },
+            {
+                question: "¿Qué es el VAN?",
+                options: ["Valor Actual Neto de una inversión", "Volumen Anual Negociado", "Valoración de Activos Netos", "Variable de Ajuste Nominal"],
+                answer: 0,
+                explanation: "El VAN (Valor Actual Neto) calcula el valor presente de los flujos de caja futuros de una inversión, descontados a una tasa que refleje el riesgo, para determinar su rentabilidad."
+            },
+            {
+                question: "¿Qué es la TIR?",
+                options: ["Tasa Interna de Retorno de una inversión", "Tasa Impositiva de Rentabilidad", "Tipo de Interés de Referencia", "Tasa de Inflación Real"],
+                answer: 0,
+                explanation: "La TIR (Tasa Interna de Retorno) es la tasa de descuento que hace que el VAN de una inversión sea igual a cero, representando la rentabilidad esperada del proyecto."
+            },
+            {
+                question: "¿Qué es un derivado financiero?",
+                options: ["Producto cuyo valor depende de otro activo", "Un tipo de préstamo", "Una acción preferente", "Un bono convertible"],
+                answer: 0,
+                explanation: "Un derivado financiero es un producto cuyo valor depende del precio de otro activo subyacente (acciones, bonos, materias primas), incluyendo futuros, opciones y swaps."
+            },
+            {
+                question: "¿Qué es el PER de una acción?",
+                options: ["Ratio Precio/Beneficio", "Porcentaje de Efectivo Retenido", "Parámetro de Evaluación de Rentabilidad", "Promedio de Expectativas de Retorno"],
+                answer: 0,
+                explanation: "El PER (Price to Earnings Ratio) compara el precio de una acción con los beneficios por acción, indicando cuánto están dispuestos a pagar los inversores por cada unidad de beneficio."
+            },
+            {
+                question: "¿Qué es un swap?",
+                options: ["Contrato para intercambiar flujos financieros", "Un tipo de opción financiera", "Un seguro de inversión", "Un fondo indexado"],
+                answer: 0,
+                explanation: "Un swap es un contrato derivado mediante el cual dos partes acuerdan intercambiar flujos financieros (como tasas de interés o divisas) durante un período determinado."
+            },
+            {
+                question: "¿Qué es el EBITDA?",
+                options: ["Beneficio antes de intereses, impuestos, depreciación y amortización", "Estimación Básica de Ingresos Totales Disponibles Anuales", "Estrategia Bancaria de Inversión y Tasa de Ahorro", "Equilibrio Base en Ingresos Totales Disponibles"],
+                answer: 0,
+                explanation: "El EBITDA (Earnings Before Interest, Taxes, Depreciation and Amortization) mide la rentabilidad operativa de una empresa, excluyendo decisiones financieras y contables."
+            },
+            {
+                question: "¿Qué es el riesgo de mercado?",
+                options: ["Posibilidad de pérdidas por movimientos en los precios", "Riesgo de impago", "Riesgo operacional", "Riesgo legal"],
+                answer: 0,
+                explanation: "El riesgo de mercado es la posibilidad de sufrir pérdidas por movimientos adversos en los precios de los activos (acciones, bonos, divisas) debido a factores económicos."
+            },
+            {
+                question: "¿Qué es el riesgo de crédito?",
+                options: ["Posibilidad de que un deudor no pague", "Riesgo por fluctuaciones de mercado", "Riesgo por cambios regulatorios", "Riesgo por errores operativos"],
+                answer: 0,
+                explanation: "El riesgo de crédito es la posibilidad de que una de las partes de un contrato financiero no cumpla con sus obligaciones de pago (impago de préstamos, bonos, etc.)."
+            },
+            {
+                question: "¿Qué es un hedge fund?",
+                options: ["Fondo de inversión alternativa con estrategias complejas", "Fondo de cobertura de riesgos", "Fondo indexado", "Fondo de pensiones privado"],
+                answer: 0,
+                explanation: "Un hedge fund es un fondo de inversión que utiliza estrategias complejas (apalancamiento, derivados, ventas en corto) y tiene mayor flexibilidad que los fondos tradicionales."
+            },
+            {
+                question: "¿Qué es el balance general de una empresa?",
+                options: ["Estado que muestra activos, pasivos y patrimonio", "Informe de resultados anuales", "Estado de flujos de efectivo", "Informe de gestión"],
+                answer: 0,
+                explanation: "El balance general muestra la situación financiera de una empresa en un momento dado, presentando lo que posee (activos), lo que debe (pasivos) y el capital de los accionistas (patrimonio)."
+            },
+            {
+                question: "¿Qué es la cuenta de resultados?",
+                options: ["Estado que muestra ingresos, gastos y beneficios", "Balance de activos", "Estado de flujos de efectivo", "Informe de patrimonio"],
+                answer: 0,
+                explanation: "La cuenta de resultados (o estado de pérdidas y ganancias) muestra los ingresos, gastos y beneficios de un período, reflejando el desempeño operativo de la empresa."
+            },
+            // 20 preguntas adicionales
+            {
+                question: "¿Qué es el flujo de caja libre?",
+                options: ["Dinero disponible después de inversiones y operaciones", "Ganancias totales de una empresa", "Fondos en cuentas bancarias", "Préstamos disponibles"],
+                answer: 0,
+                explanation: "El flujo de caja libre es el dinero que genera una empresa después de cubrir sus gastos operativos y de inversión, disponible para pagar deudas o distribuir a accionistas."
+            },
+            {
+                question: "¿Qué es un índice bursátil?",
+                options: ["Indicador del rendimiento de un grupo de acciones", "Listado de empresas", "Tasa de interés bancaria", "Registro de transacciones"],
+                answer: 0,
+                explanation: "Un índice bursátil mide el rendimiento de un grupo de acciones representativas de un mercado, como el S&P 500 o el IBEX 35."
+            },
+            {
+                question: "¿Qué es la capitalización de mercado?",
+                options: ["Valor total de las acciones de una empresa", "Dinero en bancos", "Edificios corporativos", "Fondos de inversión"],
+                answer: 0,
+                explanation: "La capitalización de mercado se calcula multiplicando el precio de una acción por el número total de acciones en circulación."
+            },
+            {
+                question: "¿Qué es un activo subyacente?",
+                options: ["Activo base de un derivado financiero", "Propiedad oculta", "Inversión secundaria", "Fondo de reserva"],
+                answer: 0,
+                explanation: "En derivados financieros, el subyacente es el activo (acción, materia prima, etc.) que determina el valor del contrato derivado."
+            },
+            {
+                question: "¿Qué es el apalancamiento operativo?",
+                options: ["Relación entre costos fijos y variables", "Préstamos bancarios", "Rotación de inventario", "Riesgo crediticio"],
+                answer: 0,
+                explanation: "Mide cómo los costos fijos afectan la rentabilidad ante cambios en las ventas. Empresas con alto apalancamiento operativo son más sensibles a fluctuaciones."
+            },
+            {
+                question: "¿Qué es el ciclo de conversión de efectivo?",
+                options: ["Tiempo entre pagar insumos y cobrar ventas", "Proceso de cambio de divisas", "Renovación de créditos", "Periodo contable"],
+                answer: 0,
+                explanation: "Indica cuánto tiempo el dinero está inmovilizado en el proceso productivo antes de convertirse en efectivo nuevamente."
+            },
+            {
+                question: "¿Qué es un warrant?",
+                options: ["Derivado que da derecho a comprar/vender un activo", "Garantía bancaria", "Seguro de inversión", "Tipo de bono"],
+                answer: 0,
+                explanation: "Similar a una opción, pero emitido por empresas. Da derecho (no obligación) a comprar/vender un activo a precio fijo en una fecha futura."
+            },
+            {
+                question: "¿Qué es el ROI?",
+                options: ["Retorno sobre la inversión", "Registro de operaciones internacionales", "Rendimiento operativo interno", "Ratio de obligaciones impagas"],
+                answer: 0,
+                explanation: "El ROI (Return on Investment) mide la rentabilidad de una inversión comparando la ganancia obtenida con el costo inicial."
+            },
+            {
+                question: "¿Qué es el coste de oportunidad?",
+                options: ["Beneficio de la mejor alternativa no elegida", "Gastos administrativos", "Intereses perdidos", "Pérdidas por inflación"],
+                answer: 0,
+                explanation: "Representa lo que sacrificas al elegir una opción sobre otras alternativas disponibles."
+            },
+            {
+                question: "¿Qué es un fondo indexado?",
+                options: ["Fondo que replica un índice bursátil", "Fondo de alto riesgo", "Fondo con gestión activa", "Fondo de capital garantizado"],
+                answer: 0,
+                explanation: "Invierte en los mismos activos que componen un índice (como el S&P 500) para replicar su rendimiento con bajas comisiones."
+            },
+            {
+                question: "¿Qué es el análisis fundamental?",
+                options: ["Evaluación basada en datos económicos y financieros", "Estudio de gráficos históricos", "Análisis de tendencias", "Predicción con modelos matemáticos"],
+                answer: 0,
+                explanation: "Examina estados financieros, gestión y perspectivas económicas para valorar activos, en contraste con el análisis técnico."
+            },
+            {
+                question: "¿Qué es el análisis técnico?",
+                options: ["Estudio de patrones en gráficos de precios", "Evaluación de balances", "Análisis macroeconómico", "Proyección de flujos"],
+                answer: 0,
+                explanation: "Busca predecir movimientos futuros de precios analizando patrones históricos y volúmenes de negociación."
+            },
+            {
+                question: "¿Qué es el riesgo país?",
+                options: ["Riesgo de invertir en una nación específica", "Riesgo cambiario", "Riesgo de default corporativo", "Riesgo regulatorio"],
+                answer: 0,
+                explanation: "Mide la probabilidad de que eventos políticos, económicos o sociales afecten inversiones en un país."
+            },
+            {
+                question: "¿Qué es el private equity?",
+                options: ["Inversión en empresas no cotizadas", "Capital riesgo en startups", "Fondos de deuda privada", "Inversiones personales"],
+                answer: 0,
+                explanation: "Capital invertido en empresas no listadas en bolsa, generalmente para reestructurarlas y venderlas posteriormente con ganancias."
+            },
+            {
+                question: "¿Qué es el venture capital?",
+                options: ["Financiamiento a startups con alto potencial", "Capital para empresas consolidadas", "Préstamos a emprendedores", "Inversión en deuda"],
+                answer: 0,
+                explanation: "Subconjunto del private equity que se especializa en financiar empresas emergentes con alto crecimiento potencial."
+            },
+            {
+                question: "¿Qué es el efecto arrastre (carryover)?",
+                options: ["Impacto de resultados pasados en periodos futuros", "Influencia de líderes de mercado", "Tendencia alcista prolongada", "Acumulación de intereses"],
+                answer: 0,
+                explanation: "Fenómeno donde resultados financieros de un periodo afectan contablemente a periodos posteriores."
+            },
+            {
+                question: "¿Qué es el ROA?",
+                options: ["Rentabilidad sobre activos", "Retorno sobre aportes", "Ratio de operaciones anuales", "Registro de operaciones activas"],
+                answer: 0,
+                explanation: "Mide la eficiencia con que una empresa usa sus activos para generar ganancias (Beneficio neto/Activos totales)."
+            },
+            {
+                question: "¿Qué es el margen bruto?",
+                options: ["Beneficio tras restar costos directos", "Utilidad después de impuestos", "Ganancia por acción", "Ingresos menos gastos financieros"],
+                answer: 0,
+                explanation: "Muestra la rentabilidad después de deducir los costos directamente asociados a la producción (ventas - costo de ventas)."
+            },
+            {
+                question: "¿Qué es el working capital?",
+                options: ["Diferencia entre activos y pasivos corrientes", "Capital de trabajo", "Fondos para operaciones diarias", "Todas las anteriores"],
+                answer: 3,
+                explanation: "Representa los recursos disponibles para financiar las operaciones del día a día de una empresa."
+            },
+            {
+                question: "¿Qué es el efecto compuesto?",
+                options: ["Crecimiento exponencial por reinversión de ganancias", "Impacto de la inflación", "Suma de intereses simples", "Acumulación de deuda"],
+                answer: 0,
+                explanation: "Ocurre cuando las ganancias generan sus propias ganancias, acelerando el crecimiento del capital con el tiempo."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userData = {};
+
+        // Iniciar cuestionario
+        document.getElementById('startQuiz').addEventListener('click', function() {
+            userData = {
+                name: document.getElementById('userName').value,
+                birthDate: document.getElementById('birthDate').value,
+                education: document.getElementById('educationLevel').value
+            };
+            
+            if (!userData.name) {
+                alert("Por favor ingresa tu nombre");
+                return;
+            }
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            document.getElementById('userGreeting').textContent = `Hola ${userData.name}, ¡comencemos!`;
+            loadQuestion();
+        });
+
+        function loadQuestion() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const nextButton = document.getElementById('next');
+
+            if (currentQuestion < questions.length) {
+                questionElement.textContent = questions[currentQuestion].question;
+                optionsElement.innerHTML = '';
+                questions[currentQuestion].options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'option';
+                    button.onclick = () => checkAnswer(index);
+                    optionsElement.appendChild(button);
+                });
+                nextButton.style.display = 'none';
+            } else {
+                // Mostrar pantalla final
+                document.getElementById('quizScreen').style.display = 'none';
+                const endScreen = document.getElementById('endScreen');
+                endScreen.style.display = 'block';
+                document.getElementById('finalMessage').innerHTML = `
+                    <h2>¡Felicidades ${userData.name}!</h2>
+                    <p style="font-size: 1.2em;">Has completado el test de Inteligencia Financiera.</p>
+                    <p style="font-size: 1.1em;">Gracias por participar y esperamos que hayas aprendido conceptos valiosos.</p>
+                `;
+                createConfetti();
+            }
+        }
+
+        function checkAnswer(selectedIndex) {
+            const modal = document.getElementById('myModal');
+            const modalHeader = document.getElementById('modalHeader');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalFeedback = document.getElementById('modalFeedback');
+            const correctAnswer = questions[currentQuestion].answer;
+
+            if (selectedIndex === correctAnswer) {
+                modalHeader.className = 'modal-header correct';
+                const messages = [`¡CORRECTO ${userData.name.toUpperCase()}! 🎉`, "¡EXCELENTE! 👏", "¡MUY BIEN! 💡", "¡ERES INCREÍBLE! 🚀"];
+                const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                modalTitle.textContent = randomMessage;
+                modalFeedback.innerHTML = `<p style="font-size: 1.3em; margin-top: 20px;">${questions[currentQuestion].explanation}</p>`;
+                createConfetti();
+            } else {
+                modalHeader.className = 'modal-header incorrect';
+                modalTitle.textContent = "¡INCORRECTO! 😕";
+                modalFeedback.innerHTML = `
+                    <p style="font-weight: bold; font-size: 1.2em;">La respuesta correcta es: ${questions[currentQuestion].options[correctAnswer]}</p>
+                    <p style="font-size: 1.3em; margin-top: 20px;">${questions[currentQuestion].explanation}</p>
+                `;
+            }
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = "none";
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            closeModal();
+        }
+
+        function createConfetti() {
+            const container = document.querySelector('.container');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                container.appendChild(confetti);
+                
+                // Eliminar el confeti después de la animación
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        function getRandomColor() {
+            const colors = ['#2563EB', '#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+    </script>
+</body>
+</html>
